@@ -20,15 +20,12 @@ public class GitHubClient
   public async Task<IEnumerable<CommitBaseDto>> FetchCommits(string repo) 
   {
     loggerClient.LogTask(string.Format("Se interogheaza {0}/{1}...", user, repo));
-    // var url = string.Format("https://api.github.com/repos/torvalds/{0}/commits", repo);
-    // var response = await client.GetAsync(url).ConfigureAwait(false);
-    // var responseJsonContent = await response.Content.ReadAsStringAsync();
+    var url = string.Format("https://api.github.com/repos/{0}/{1}/commits", this.user, repo);
+    var response = await httpClient.GetAsync(url).ConfigureAwait(false);
+    var responseJsonContent = await response.Content.ReadAsStringAsync();
     loggerClient.LogTask(string.Format("Se deserializeaza {0}/{1}...", user, repo));
-    // var commits = JsonConvert.DeserializeObject<IEnumerable<CommitBaseDto>>(responseJsonContent);
 
-    // return commits ?? Enumerable.Empty<CommitBaseDto>();
-    await Task.Delay(100);
-
-    return Enumerable.Empty<CommitBaseDto>();
+    var commits = JsonConvert.DeserializeObject<IEnumerable<CommitBaseDto>>(responseJsonContent);
+    return commits ?? Enumerable.Empty<CommitBaseDto>();
   }
 }

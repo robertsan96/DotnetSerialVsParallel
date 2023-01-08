@@ -24,9 +24,9 @@ var userRepos = new List<GitHubFetchingUser>()
 
 ///
 
-var parallelCommits = new List<GitHubRepoCommit>();          // GitHub commits
-var parallelRequestAndDeserializations = new Dictionary<GitHubFetchingUser, Task>();   // Tasks & Task Results for phase 1: fetching info
-var parallelSerializationAndFileWrites = new List<Task>();   // Tasks & Task Results for phase 2: file writing
+var parallelCommits = new List<GitHubRepoCommit>(); // GitHub commits
+var parallelRequestAndDeserializations = new Dictionary<GitHubFetchingUser, Task>(); // Tasks & Task Results for phase 1: fetching info
+var parallelSerializationAndFileWrites = new List<Task>(); // Tasks for phase 2: file writing
 
 // 1. Fetch commits for a user & repo (request + deserialization into DTOs)
 
@@ -72,7 +72,7 @@ foreach(var parallelCommit in parallelCommits)
   _ = parallelCommit.fetchingUser?.Username ?? throw new ArgumentNullException();
   _ = parallelCommit.fetchingUser.Repository ?? throw new ArgumentNullException();
   var filename = parallelCommit.fetchingUser.Username + "_" + parallelCommit.fetchingUser.Repository + ".json";
-  var fileClient = new FileClient(filename);
+  var fileClient = new FileClient("paralel_" + filename);
   var jsonString = JsonConvert.SerializeObject(parallelCommit.commits);
 
   var task = fileClient.WriteFileContentsAsync(jsonString ?? "Something is definitely wrong.");
@@ -86,6 +86,7 @@ TimeSpan elapsedParallelSerializationAndFileWrites = stopwatch.Elapsed;
 
 logger.LogSequenceTime(string.Format("Timp paralel (serializare + scriere in fisiere json): {0} ms", elapsedParallelSerializationAndFileWrites.TotalMilliseconds));
 logger.LogSequenceTime(string.Format("\nTimp paralel (total): {0} ms", (elapsedParallelSerializationAndFileWrites + elapsedParallelRestAndDeserialization).TotalMilliseconds), true);
+
 //
 // Performance Test: Serial Requests
 //
